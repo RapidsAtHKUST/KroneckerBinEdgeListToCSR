@@ -1,10 +1,14 @@
 # Kronecker Bin Edge List Pre-Processing
 
-## Build (Assume in the build directory)
+## Build 
 
 ```zsh
-cmake project-path
-make -j
+rm -rf ~/build-tmp
+mkdir -p ~/build-tmp 
+cd ~/build-tmp
+cmake -H~/workspace/yche/git-repos/KroneckerBinEdgeListToCSR -B~/build-tmp -DCMAKE_INSTALL_PREFIX=~/yche-bin
+make -j 
+make install
 ```
 
 ## Usage
@@ -12,6 +16,7 @@ make -j
 * command
 
 ```zsh
+./kron_converter -f /ssd/zlai/yche-datasets/kron23-16.bin -o /ssd/zlai/yche-datasets/datasets/datasets/kron23-16.bin
 ./kron_converter -f /ssd/zlai/yche-datasets/s25-16.kron.bin -o  /ssd/zlai/yche-datasets/datasets/s25-16.kron.bin 
 ```
 

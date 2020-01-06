@@ -74,3 +74,6 @@ if (ATOMIC_FOUND)
 else ()
     target_compile_definitions(kron_converter PRIVATE NO_ATOMIC=1)
 endif ()
+
+## make-install
+install(TARGETS kron_converter RUNTIME DESTINATION .)
