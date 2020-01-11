@@ -72,11 +72,6 @@ link_libraries(graph-utils)
 ## 1st: Edge List to CSR Converter.
 find_package(atomic)
 add_executable(kron_converter playground/kron_converter.cpp)
-if (ATOMIC_FOUND)
-    link_libraries(${ATOMIC_LIBRARY})
-else ()
-    target_compile_definitions(kron_converter PRIVATE NO_ATOMIC=1)
-endif ()
 
 ### make-install
 install(TARGETS kron_converter RUNTIME DESTINATION .)
@@ -85,4 +80,10 @@ install(TARGETS kron_converter RUNTIME DESTINATION .)
 add_executable(graph_stats playground/graph_stats.cpp)
 install(TARGETS graph_stats RUNTIME DESTINATION .)
 
+if (ATOMIC_FOUND)
+    link_libraries(${ATOMIC_LIBRARY})
+else ()
+    target_compile_definitions(kron_converter PRIVATE NO_ATOMIC=1)
+    target_compile_definitions(graph_stats PRIVATE NO_ATOMIC=1)
+endif ()
 
