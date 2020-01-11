@@ -172,7 +172,16 @@ vector<int32_t> PKC_refactor(string file_name, Graph &yche_graph) {
 int main(int argc, char *argv[]) {
     OptionParser op("Allowed options");
     auto input_dir_option = op.add<Value<std::string >>("i", "i-file-path", "the graph input bin directory path");
+    auto log_dir_option = op.add<Value<std::string >>("l", "log-file-path", "the log path");
     op.parse(argc, argv);
+
+#ifdef USE_LOG
+    FILE *log_f = nullptr;
+    if (log_dir_option->is_set()) {
+        log_f = fopen(log_dir_option->value(0).c_str(), "a+");
+        log_set_fp(log_f);
+    }
+#endif
 
     // |V|, |E|, avg-deg, max-deg, dodg-max-deg
     // |TC|, core-info-his
@@ -226,4 +235,12 @@ int main(int argc, char *argv[]) {
     } else {
         log_error("No valid options");
     }
+
+#ifdef USE_LOG
+    if (log_f != nullptr) {
+        log_info("Flush File and Close...");
+        fflush(log_f);
+        fclose(log_f);
+    }
+#endif
 }
