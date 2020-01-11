@@ -65,15 +65,24 @@ else ()
     #    link_libraries("/usr/local/lib/libmimalloc.so")
 endif ()
 
+add_library(graph-utils util/log/log.cpp util/graph/graph.cpp util/md5.cpp util/search/search_util.cpp
+        reordering_utils/pkc_reorder_refactor.cpp reordering_utils/reorder_utils.cpp)
+link_libraries(graph-utils)
+
+## 1st: Edge List to CSR Converter.
 find_package(atomic)
-add_executable(kron_converter
-        playground/kron_converter.cpp util/log/log.cpp
-        util/graph/graph.cpp)
+add_executable(kron_converter playground/kron_converter.cpp)
 if (ATOMIC_FOUND)
     link_libraries(${ATOMIC_LIBRARY})
 else ()
     target_compile_definitions(kron_converter PRIVATE NO_ATOMIC=1)
 endif ()
 
-## make-install
+### make-install
 install(TARGETS kron_converter RUNTIME DESTINATION .)
+
+## 2nd: CSR Analytics.
+add_executable(graph_stats playground/graph_stats.cpp)
+install(TARGETS graph_stats RUNTIME DESTINATION .)
+
+
