@@ -153,13 +153,6 @@ vector<int32_t> PKC_refactor(string file_name, Graph &yche_graph) {
     auto histogram = core_val_histogram(g.n, core);
 
     stringstream ss;
-    if (histogram.size() < 300) {
-        ss << histogram;
-        log_info("All: %s", ss.str().c_str());
-    } else {
-        ss << pretty_print_array(&histogram.front(), 300);
-        log_info("Top 300: %s", ss.str().c_str());
-    }
     {
         stringstream ss;
         ss << histogram << "\n";
@@ -171,7 +164,7 @@ vector<int32_t> PKC_refactor(string file_name, Graph &yche_graph) {
     ofstream ofs(output_dir);
     ofs << histogram << endl;
     free(core);
-    log_info("PKC time: %.6lf s\n", timer.elapsed());
+    log_info("PKC time: %.6lf s", timer.elapsed());
     return histogram;
 /*******************************************************************************************/
 }
@@ -179,7 +172,6 @@ vector<int32_t> PKC_refactor(string file_name, Graph &yche_graph) {
 int main(int argc, char *argv[]) {
     OptionParser op("Allowed options");
     auto input_dir_option = op.add<Value<std::string >>("i", "i-file-path", "the graph input bin directory path");
-    log_info("%s", op.description().c_str());
     op.parse(argc, argv);
 
     // |V|, |E|, avg-deg, max-deg, dodg-max-deg

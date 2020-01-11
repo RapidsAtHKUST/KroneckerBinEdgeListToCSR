@@ -9,7 +9,7 @@
 using namespace std;
 
 template<typename T>
-vector<int32_t> core_val_histogram(int n, T &core, bool is_print = false) {
+vector<int32_t> core_val_histogram(int n, T &core, bool is_print = false, bool is_print_bin = false) {
     Timer histogram_timer;
     // core-value histogram
     int max_core_val = 0;
@@ -59,38 +59,39 @@ vector<int32_t> core_val_histogram(int n, T &core, bool is_print = false) {
         }
     }
     log_info("Histogram Time: %.9lf s", histogram_timer.elapsed());
+    if (is_print_bin) {
+        auto &bins = histogram;
+        auto bin_cnt = 0;
+        int64_t acc = 0;
+        auto thresh = n / 10;
+        auto last = 0;
 
-    auto &bins = histogram;
-    auto bin_cnt = 0;
-    int64_t acc = 0;
-    auto thresh = n / 10;
-    auto last = 0;
-
-    for (auto i = 0u; i < histogram.size(); i++) {
-        if (bins[i] > 0) {
-            bin_cnt++;
-            acc += bins[i];
-            if (acc > thresh || i == histogram.size() - 1) {
-                log_info("bin[%d - %d]: %s", last, i, FormatWithCommas(acc).c_str());
-                last = i + 1;
-                acc = 0;
+        for (auto i = 0u; i < histogram.size(); i++) {
+            if (bins[i] > 0) {
+                bin_cnt++;
+                acc += bins[i];
+                if (acc > thresh || i == histogram.size() - 1) {
+                    log_info("bin[%d - %d]: %s", last, i, FormatWithCommas(acc).c_str());
+                    last = i + 1;
+                    acc = 0;
+                }
             }
         }
-    }
-    log_info("Reversed Bins...");
-    last = histogram.size() - 1;
-    acc = 0;
-    for (int32_t i = histogram.size() - 1; i > -1; i--) {
-        if (bins[i] > 0) {
-            bin_cnt++;
-            acc += bins[i];
-            if (acc > thresh || i == 0) {
-                log_info("bin[%d - %d]: %s", i, last, FormatWithCommas(acc).c_str());
-                last = i + 1;
-                acc = 0;
+        log_info("Reversed Bins...");
+        last = histogram.size() - 1;
+        acc = 0;
+        for (int32_t i = histogram.size() - 1; i > -1; i--) {
+            if (bins[i] > 0) {
+                bin_cnt++;
+                acc += bins[i];
+                if (acc > thresh || i == 0) {
+                    log_info("bin[%d - %d]: %s", i, last, FormatWithCommas(acc).c_str());
+                    last = i + 1;
+                    acc = 0;
+                }
             }
         }
+        log_info("total bin counts: %d", bin_cnt);
     }
-    log_info("total bin counts: %d", bin_cnt);
     return histogram;
 }
