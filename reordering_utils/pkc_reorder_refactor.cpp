@@ -1,7 +1,5 @@
 #include <omp.h>
 
-#include <cassert>
-
 #include <util/timer.h>
 #include <util/log/log.h>
 #include <util/primitives/local_buffer.h>
@@ -59,6 +57,7 @@ void CompactGraphPrimitive(graph_t *g, graph_t &g_small, int *&newDeg,
     long reduceN = n - visited;
 #pragma omp single
     {
+        log_info("ReduceN: %d", reduceN);
         newDeg = (int *) malloc(reduceN * sizeof(int));
         mapIndexToVtx = (unsigned int *) malloc(reduceN * sizeof(unsigned int));
 
@@ -75,7 +74,7 @@ void CompactGraphPrimitive(graph_t *g, graph_t &g_small, int *&newDeg,
         g_small.adj = (vid_t *) malloc(g->m * sizeof(uint32_t));
         Size = reduceN;
     }
-    MemSetOMP(tmp_histogram, 0, reduceN + 1);
+    MemSetOMP(tmp_histogram, 0, sizeof(eid_t) * (reduceN + 1));
 
     // In-place Selection: Keep the original vertex order.
     // 1st: Construct mapIndexToVtx: mapping to the original vertex ID.
