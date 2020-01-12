@@ -14,9 +14,6 @@ using namespace std;
 #define CACHE_LINE_ENTRY (16)
 #define LOCAL_BUDGET (8*1024*1024)
 
-#define FOR_LOOP_MEMSET
-#define FOR_LOOP_MEMCPY
-
 template<typename T>
 void MemSetOMP(T *arr, int val, size_t size) {
     size_t tid = omp_get_thread_num();
@@ -26,17 +23,9 @@ void MemSetOMP(T *arr, int val, size_t size) {
     size_t avg = (task_num + max_omp_threads - 1) / max_omp_threads;
     auto it_beg = avg * tid;
     auto it_end = min(avg * (tid + 1), task_num);
-#ifndef FOR_LOOP_MEMSET
-    memset(arr + it_beg, val, sizeof(T) * (it_end - it_beg));
-#else
-    T bits = 0;
-    for (auto i = 0; i < sizeof(T); i++) {
-        bits |= static_cast<T>(val) << (8 * i);
+    if (it_beg < it_end) {
+        memset(arr + it_beg, val, sizeof(T) * (it_end - it_beg));
     }
-    for (auto i = it_beg; i < it_end; i++) {
-        arr[i] = bits;
-    }
-#endif
 #pragma omp barrier
 }
 
@@ -49,13 +38,9 @@ void MemCpyOMP(T *dst, T *src, size_t size) {
     size_t avg = (task_num + max_omp_threads - 1) / max_omp_threads;
     auto it_beg = avg * tid;
     auto it_end = min(avg * (tid + 1), task_num);
-#ifndef FOR_LOOP_MEMCPY
-    memcpy(dst + it_beg, src + it_beg, sizeof(T) * (it_end - it_beg));
-#else
-    for (auto i = it_beg; i < it_end; i++) {
-        dst[i] = src[i];
+    if (it_beg < it_end) {
+        memcpy(dst + it_beg, src + it_beg, sizeof(T) * (it_end - it_beg));
     }
-#endif
 #pragma omp barrier
 }
 
