@@ -23,7 +23,14 @@ void MemSetOMP(T *arr, int val, size_t size) {
     size_t avg = (task_num + max_omp_threads - 1) / max_omp_threads;
     auto it_beg = avg * tid;
     auto it_end = min(avg * (tid + 1), task_num);
-    memset(arr + it_beg, val, sizeof(T) * (it_end - it_beg));
+//    memset(arr + it_beg, val, sizeof(T) * (it_end - it_beg));
+    T bits = 0;
+    for (auto i = 0; i < sizeof(T); i++) {
+        bits |= static_cast<T>(val) << (8 * i);
+    }
+    for (auto i = it_beg; i < it_end; i++) {
+        arr[i] = bits;
+    }
 #pragma omp barrier
 }
 
@@ -36,7 +43,10 @@ void MemCpyOMP(T *dst, T *src, size_t size) {
     size_t avg = (task_num + max_omp_threads - 1) / max_omp_threads;
     auto it_beg = avg * tid;
     auto it_end = min(avg * (tid + 1), task_num);
-    memcpy(dst + it_beg, src + it_beg, sizeof(T) * (it_end - it_beg));
+//    memcpy(dst + it_beg, src + it_beg, sizeof(T) * (it_end - it_beg));
+    for (auto i = it_beg; i < it_end; i++) {
+        dst[i] = src[i];
+    }
 #pragma omp barrier
 }
 

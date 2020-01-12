@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
         log_set_fp(log_f);
     }
 #endif
-
+    log_info("Threads (omp_get_max_threads): %zu", omp_get_max_threads());
     // |V|, |E|, avg-deg, max-deg, dodg-max-deg
     // |TC|, core-info-his
     if (input_dir_option->is_set()) {

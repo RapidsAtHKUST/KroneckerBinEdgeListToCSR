@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <omp.h>
 
 #include <util/timer.h>
@@ -74,7 +76,7 @@ void CompactGraphPrimitive(graph_t *g, graph_t &g_small, int *&newDeg,
         g_small.adj = (vid_t *) malloc(g->m * sizeof(uint32_t));
         Size = reduceN;
     }
-    MemSetOMP(tmp_histogram, 0, sizeof(eid_t) * (reduceN + 1));
+    MemSetOMP(tmp_histogram, 0, reduceN + 1);
 
     // In-place Selection: Keep the original vertex order.
     // 1st: Construct mapIndexToVtx: mapping to the original vertex ID.
