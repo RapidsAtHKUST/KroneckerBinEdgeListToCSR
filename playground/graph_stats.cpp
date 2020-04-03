@@ -32,7 +32,9 @@
 using namespace popl;
 using namespace std;
 
-graph_t YcheGraphSimplify(Graph &yche_graph) {
+using InputGraph = Graph<size_t>;
+
+graph_t YcheInputGraphSimplify(InputGraph &yche_graph) {
     graph_t g;
     g.adj = yche_graph.edge_dst;
     g.num_edges = yche_graph.node_off;
@@ -41,9 +43,9 @@ graph_t YcheGraphSimplify(Graph &yche_graph) {
     return g;
 }
 
-size_t TC(Graph &yche_graph) {
+size_t TC(InputGraph &yche_graph) {
     vector<size_t> tc_cnts;
-    graph_t g = YcheGraphSimplify(yche_graph);
+    graph_t g = YcheInputGraphSimplify(yche_graph);
 
     vector<int32_t> new_dict;
     vector<int32_t> old_dict;
@@ -67,7 +69,7 @@ size_t TC(Graph &yche_graph) {
         }
     }
 
-    {
+    if (yche_graph.edgemax <= UINT32_MAX) {
         // 1st: Remove Multi-Edges and Self-Loops.
         Timer global_timer;
         Timer sort_timer;
@@ -112,7 +114,7 @@ size_t TC(Graph &yche_graph) {
                              || (it > 0 && edge_lst[it - 1] == edge_lst[it]));
                 });
         g.m = g.num_edges[num_vertices];
-        log_info("Undirected Graph G = (|V|, |E|): %lld, %lld", g.n, g.m);
+        log_info("Undirected InputGraph G = (|V|, |E|): %lld, %lld", g.n, g.m);
         log_info("Mem Usage: %s KB", FormatWithCommas(getValue()).c_str());
 
         // 3rd: Reordering.
@@ -136,9 +138,9 @@ size_t TC(Graph &yche_graph) {
     return whole_g_tc_cnt;
 }
 
-vector<int32_t> PKC_refactor(string file_name, Graph &yche_graph) {
+vector<int32_t> PKC_refactor(string file_name, InputGraph &yche_graph) {
     // Core-Decomposition.
-    graph_t g = YcheGraphSimplify(yche_graph);
+    graph_t g = YcheInputGraphSimplify(yche_graph);
 
     long n = g.n;
     /* Contains the core number for each vertex */
@@ -189,7 +191,7 @@ int main(int argc, char *argv[]) {
         auto file_name = input_dir_option->value(0);
 
         // V|, |E|, avg-deg, max-deg, dodg-max-deg.
-        Graph yche_graph(const_cast<char *>(file_name.c_str()));
+        InputGraph yche_graph(const_cast<char *>(file_name.c_str()));
         uint32_t dodg_max_deg = 0;
         uint32_t org_max_deg = 0;
         auto directed_out_deg = (uint32_t *) malloc(sizeof(uint32_t) * yche_graph.nodemax);
@@ -205,7 +207,7 @@ int main(int argc, char *argv[]) {
             }
             directed_out_deg[u] = dodg_deg;
             dodg_max_deg = max(dodg_max_deg, dodg_deg);
-            org_max_deg = max(org_max_deg, yche_graph.node_off[u + 1] - yche_graph.node_off[u]);
+            org_max_deg = max<int>(org_max_deg, yche_graph.node_off[u + 1] - yche_graph.node_off[u]);
         }
 
         // Core-Decomposition.

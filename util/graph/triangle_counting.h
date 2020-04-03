@@ -7,7 +7,7 @@
 
 #define MAX_PACK_NUM (32768)
 #define FIRST_RANGE_SIZE (32768)
-using row_ptr_t = uint32_t;
+using row_ptr_t = eid_t;
 
 template<typename OFF, typename WI, typename WC>
 void PackWords(graph_t &g, OFF *row_ptrs_beg, int to_pack_num, vector<vector<WI>> &word_indexes,
@@ -271,7 +271,7 @@ inline size_t CountTriMergeDODG(graph_t &g, int max_omp_threads) {
             for (auto edge_idx = g.num_edges[u]; edge_idx < g.num_edges[u + 1]; edge_idx++) {
                 auto v = g.adj[edge_idx];
                 tc_cnt += SetInterLookup(&g, g.num_edges[u], g.num_edges[u + 1],
-                                                         g.num_edges[v], g.num_edges[v + 1]);
+                                         g.num_edges[v], g.num_edges[v + 1]);
             }
         }
     }

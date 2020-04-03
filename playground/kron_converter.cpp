@@ -30,13 +30,17 @@ void WriteToOutputFiles(string &deg_output_file, string &adj_output_file, Deg &d
     ofstream deg_ofs(deg_output_file, ios::binary);
 
     Timer timer;
+    size_t max_int_number = UINT32_MAX;
     int int_size = sizeof(int);
+    if (edge_num > max_int_number) {
+        int_size = sizeof(size_t);
+    }
     deg_ofs.write(reinterpret_cast<const char *>(&int_size), 4);
     deg_ofs.write(reinterpret_cast<const char *>(&vertex_num), 4);
-    deg_ofs.write(reinterpret_cast<const char *>(&edge_num), 4);
+    deg_ofs.write(reinterpret_cast<const char *>(&edge_num), int_size);
+
     deg_ofs.write(reinterpret_cast<const char *>(degrees), vertex_num * 4u);
     log_info("degree file write time: %.3lf s", timer.elapsed_and_reset());
-
     ofstream adj_ofs(adj_output_file, ios::binary);
     adj_ofs.write(reinterpret_cast<const char *>(dst_vertices), edge_num * 4u);
     log_info("adj file write time: %.3lf s", timer.elapsed_and_reset());
@@ -95,13 +99,17 @@ int main(int argc, char *argv[]) {
 
         uint32_t *deg_lst;
         graph_t g{.n=num_vertices, .m = 0, .adj=nullptr, .num_edges=nullptr};
-        ConvertEdgeListToCSR((uint32_t) num_edges, edge_lst, num_vertices, deg_lst, g.num_edges, g.adj,
+
+        auto *num_edges_local = (size_t *) malloc(sizeof(size_t) * (num_vertices + 1));
+        ConvertEdgeListToCSR((size_t) num_edges, edge_lst, num_vertices, deg_lst, num_edges_local, g.adj,
                              max_omp_threads);
-        g.m = g.num_edges[num_vertices];
+        g.m = num_edges_local[num_vertices];
+        log_info("Num of Edges: %lld", g.m);
 #pragma omp parallel for schedule(dynamic, 1000)
         for (auto u = 0; u < num_vertices; u++) {
-            sort(g.adj + g.num_edges[u], g.adj + g.num_edges[u + 1]);
+            sort(g.adj + num_edges_local[u], g.adj + num_edges_local[u + 1]);
         }
+        free(num_edges_local);
         log_info("Undirected Graph G = (|V|, |E|): %lld, %lld", g.n, g.m);
         log_info("Mem Usage: %s KB", FormatWithCommas(getValue()).c_str());
 
@@ -113,6 +121,6 @@ int main(int argc, char *argv[]) {
         WriteToOutputFiles(deg_file_path, reorder_adj_file_path, deg_lst, num_vertices, g.adj, g.m);
         // Verification.
         // No duplicates, sorted, no-self loops.
-        Graph test_g((char *) output_dir.c_str());
+        Graph<std::size_t> test_g((char *) output_dir.c_str());
     }
 }

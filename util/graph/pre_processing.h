@@ -159,7 +159,7 @@ inline void Reorder(graph_t &g, vector<int32_t> &new_vid_dict, vector<int32_t> &
     Timer timer;
 
     new_vid_dict = vector<int32_t>(g.n);
-    using row_ptr_t = uint32_t ;
+    using row_ptr_t = eid_t;
     vector<row_ptr_t> new_off(g.n + 1);
     new_off[0] = 0;
 

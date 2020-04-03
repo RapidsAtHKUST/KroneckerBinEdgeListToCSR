@@ -131,10 +131,10 @@ void RevereseDODG(graph_t *org_g, graph_t *rev_g) {
     rev_g->n = org_g->n;
     rev_g->m = org_g->m;
     auto num_vertices = org_g->n;
-    rev_g->num_edges = (uint32_t *) malloc(sizeof(uint32_t) * (num_vertices + 1));
+    rev_g->num_edges = (eid_t *) malloc(sizeof(eid_t) * (num_vertices + 1));
 
     auto *dodg_deg_lst = (uint32_t *) malloc(sizeof(uint32_t) * (num_vertices + 1));
-    auto cur_write_off = (uint32_t *) malloc(sizeof(uint32_t) * (num_vertices + 1));
+    auto cur_write_off = (eid_t *) malloc(sizeof(eid_t) * (num_vertices + 1));
     vector<uint32_t> histogram;
 
 #pragma omp parallel num_threads(max_omp_threads)

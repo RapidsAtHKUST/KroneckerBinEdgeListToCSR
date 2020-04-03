@@ -66,7 +66,8 @@ else ()
 endif ()
 
 add_library(graph-utils util/log/log.cpp util/graph/graph.cpp util/md5.cpp util/search/search_util.cpp
-        reordering_utils/pkc_reorder_refactor.cpp reordering_utils/reorder_utils.cpp)
+        reordering_utils/pkc_reorder_refactor.cpp
+        reordering_utils/reorder_utils.cpp)
 link_libraries(graph-utils)
 
 ## 1st: Edge List to CSR Converter.

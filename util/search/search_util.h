@@ -66,8 +66,8 @@ bool BranchFreeBSExists(T *a, uint32_t offset_beg, uint32_t offset_end, T x) {
 }
 
 // Assuming (offset_beg != offset_end)
-template<typename T>
-uint32_t GallopingSearch(T *array, uint32_t offset_beg, uint32_t offset_end, T val) {
+template<typename T, typename OFF>
+uint32_t GallopingSearch(T *array, OFF offset_beg, OFF offset_end, T val) {
     if (array[offset_end - 1] < val) {
         return offset_end;
     }

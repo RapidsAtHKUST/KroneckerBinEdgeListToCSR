@@ -22,7 +22,7 @@ void free_graph_pkc(graph_t *g) {
         free(g->num_edges);
 }
 
-inline int FindSrc(graph_t *g, int &tls_u, int u, uint32_t edge_idx) {
+inline int FindSrc(graph_t *g, int &tls_u, int u, size_t edge_idx) {
     // Init.
     if (edge_idx < g->num_edges[u]) {
         // Keep.
@@ -31,7 +31,7 @@ inline int FindSrc(graph_t *g, int &tls_u, int u, uint32_t edge_idx) {
     }
     if (edge_idx >= g->num_edges[u + 1]) {
         // update last_u, preferring galloping instead of binary search because not large range here
-        u = GallopingSearch(g->num_edges, static_cast<uint32_t>(u) + 1, g->n + 1, edge_idx);
+        u = GallopingSearch(g->num_edges, static_cast<uint32_t>(u) + 1, static_cast<uint32_t >(g->n + 1), edge_idx);
         // 1) first > , 2) has neighbor
         if (g->num_edges[u] > edge_idx) {
             while (g->num_edges[u] - g->num_edges[u - 1] == 0) { u--; }
@@ -47,10 +47,10 @@ inline int FindSrc(graph_t *g, int &tls_u, int u, uint32_t edge_idx) {
 }
 
 uint32_t *relative_off_v = nullptr;
-uint32_t *relative_off_e = nullptr;
+eid_t *relative_off_e = nullptr;
 uint32_t *identity = nullptr;
-uint32_t *tmp_histogram = nullptr;
-vector<uint32_t> histogram;
+eid_t *tmp_histogram = nullptr;
+vector<eid_t> histogram;
 
 void CompactGraphPrimitive(graph_t *g, graph_t &g_small, int *&newDeg,
                            unsigned int *&mapIndexToVtx, vid_t *&vertexToIndex, unsigned int *cumNumEdges,
@@ -66,7 +66,7 @@ void CompactGraphPrimitive(graph_t *g, graph_t &g_small, int *&newDeg,
         assert(g->m == g->num_edges[g->n]);
         // Auxiliaries.
         relative_off_v = (uint32_t *) malloc(n * sizeof(uint32_t));
-        relative_off_e = (uint32_t *) malloc(g->m * sizeof(uint32_t));
+        relative_off_e = (eid_t *) malloc(g->m * sizeof(eid_t));
         identity = (uint32_t *) malloc(n * sizeof(vid_t));
         tmp_histogram = (eid_t *) malloc((reduceN + 1) * sizeof(eid_t));
 
